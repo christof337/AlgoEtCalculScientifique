@@ -9,6 +9,7 @@
 \usepackage{hyperref}
 \usepackage{listings}
 \usepackage{amssymb}
+\usepackage{algorithm,algpseudocode}
 
 \begin{document}
 
@@ -19,22 +20,29 @@ christophe.pont@univ-perp.fr
 https://github.com/christof337/AlgoEtCalculScientifique}
 \date{\today{}} % You can remove \today{} and type a date manually
 
-\lstset{language=C} 
+\lstset{
+	language=C, 
+	breakatwhitespace=false,
+	breaklines=true, 
+	showspaces=false
+	showstringspaces=false,          % underline spaces within strings only
+  showtabs=false                  % show tabs within strings adding particular underscores
+} 
 
 %\maketitle{} % Generates title
 \centering
 {\huge\bfseries TD1 : MPFR\par}
 \begin{flushleft}
-{Christophe Pont, LAMPS \\ 
-christophe.pont@univ-perp.fr \\ 
-https://github.com/christof337/AlgoEtCalculScientifique}
+{Christophe Pont, LAMPS \hfill \emph{Licence L3}\\ 
+christophe.pont@univ-perp.fr \hfill \emph{Algo et Calcul scientifique} \\ 
+https://github.com/christof337/AlgoEtCalculScientifique \hfill \today} \\ 
 \end{flushleft}
 
 \justifying
 \section{Présentation de MPFR}
 \paragraph{Présentation}
 MPFR est une bibliothèque C utilisée pour des calculs en virgule flottante à précision arbitraire\footnote{\url{http://www.mpfr.org/\#intro}} - elle a été développée en France\footnote{\url{http://www.mpfr.org/credit.html}}. 
-Elle est entièrement libre, et sous \emph{GNU Lesser GPL}, une licence permissive\footnote{\url{http://www.gnu.org/copyleft/lesser.html}}.\\
+Elle est entièrement libre, et sous \emph{GNU Lesser GPL}, une licence sensiblement permissive\footnote{\url{http://www.gnu.org/copyleft/lesser.html}}.\\
 Initialement intégrée à GMP\footnote{\url{https://gmplib.org/}}, elle en est désormais une extension. De facto, GMP est toujours nécessaire à l'utilisation de MPFR. \\
 Bien que la bibliothèque ait été initialement développée en C, des interfaces existent pour d'autres langages\footnote{\url{http://www.mpfr.org/\#interfaces}} (attention, la conception est parfois différente) :
 	\begin{itemize}
@@ -45,30 +53,43 @@ Bien que la bibliothèque ait été initialement développée en C, des interfac
 		\item \href{http://rubygems.org/gems/gmp}{Ruby}
 		\item and even \href{https://cran.r-project.org/web/packages/Rmpfr/index.html}{R}
 	\end{itemize}
-L'intérêt ici est de se familiariser avec cette bibliothèque, et l'utiliser afin de manipuler facilement la précision et les modes d'arrondis permis.  
+\paragraph{Objectif} L'intérêt ici est de se familiariser avec cette bibliothèque, et l'utiliser afin de manipuler facilement la précision et les modes d'arrondis permis, en langage C.  
 \paragraph{Documentation} Une documentation de l'interface est disponible en ligne (\url{http://www.mpfr.org/mpfr-current/mpfr.html}). \textbf{Elle servira de référence tout au long de ce TP}.
 
 \section{Installation}
 Si MPFR n'est pas présent sur votre système, vous pouvez le télécharger \href{http://www.mpfr.org/}{ici} ou \href{https://ftp.gnu.org/gnu/mpfr/}{là}.
-L'OS recommandé pour l'utilisation de MPFR est bien évidemment GNU/Linux, de par la forte dépendance entre GMP et MPFR. Ceci étant, vous restez libres de vos choix.
+L'OS recommandé pour l'utilisation de MPFR est bien évidemment GNU/Linux, de par la forte dépendance entre GMP et MPFR. Ceci étant, vous restez libres.
 \paragraph{Sous Linux}
-Bien que certaines distributions GNU/Linux l'intègrent nativement, les headers ne sont pas toujours disponibles correctement.\\
+Bien que certaines distributions GNU/Linux l'intègrent nativement, les headers ne sont pas toujours disponibles aux emplacements adéquats au développement.\\
 Se référer à \url{http://www.mpfr.org/mpfr-current/mpfr.html\#Installing-MPFR} pour les instructions d'installation détaillées, et pour tester si l'installation fonctionne.
 
 \paragraph{Sous Windows}
-Si par erreur votre système d'exploitation se trouve être Windows, vous trouverez tout le nécessaire pour \emph{build} les \emph{packages} (ou en télécharger des \emph{prebuilt}) \href{https://github.com/emphasis87/libmpfr-msys2-mingw64}{ici} \url{https://github.com/emphasis87/libmpfr-msys2-mingw64}. %%%
+Vous trouverez tout le nécessaire pour \emph{build} les \emph{packages} (ou en télécharger des \emph{prebuilt}) \href{https://github.com/emphasis87/libmpfr-msys2-mingw64}{ici} \url{https://github.com/emphasis87/libmpfr-msys2-mingw64}.
 
 \paragraph{Sous OSX} 
-Au cas où quelqu'un ait besoin de lire ce paragraphe, il lui faudra passer par \href{https://github.com/macports/macports-ports}{macports} et récupérer le \emph{Portfile} de MPFR afin de procéder à l'installation (\url{https://github.com/macports/macports-ports/blob/master/devel/mpfr/Portfile}). %%%
+Voir \href{https://github.com/macports/macports-ports}{macports} et récupérer le \emph{Portfile} de MPFR afin de procéder à l'installation (\url{https://github.com/macports/macports-ports/blob/master/devel/mpfr/Portfile}).
+
+\paragraph{Tester l'installation}
+Si la compilation du simple programme C suivant
+\begin{lstlisting}
+	#include <stdio.h>
+	#include <mpfr.h>
+	int main (void)
+	{
+		printf ("MPFR library: %-12s\nMPFR header: %s (based on %d.%d.%d)\n", mpfr_get_version(), MPFR_VERSION_STRING, MPFR_VERSION_MAJOR, MPFR_VERSION_MINOR, MPFR_VERSION_PATCHLEVEL);
+		return 0;
+	}
+\end{lstlisting}
+avec \verb=cc -o version version.c -lmpfr -lgmp= s'exécute correctement (et que la version s'affiche bien à l'exécution de \verb=./version=), alors MPFR est correctement installé : vous pouvez passer à la suite.
 
 \section{Exercices}
 Une lecture préliminaire pour comprendre la bibliothèque se trouve \href{http://www.mpfr.org/mpfr-current/mpfr.html#MPFR-Basics}{ici} \url{http://www.mpfr.org/mpfr-current/mpfr.html#MPFR-Basics}.\\
-tl;dr ou pas, l'interface de référence est \href{http://www.mpfr.org/mpfr-current/mpfr.html#MPFR-Interface}{là} \url{http://www.mpfr.org/mpfr-current/mpfr.html#MPFR-Interface}, habituez-vous à y naviguer. %%%
+L'interface de référence quant à elle est \href{http://www.mpfr.org/mpfr-current/mpfr.html#MPFR-Interface}{là} \url{http://www.mpfr.org/mpfr-current/mpfr.html#MPFR-Interface}, habituez-vous à y naviguer.
 
 \setcounter{enumi}{1}
 \subsection{Exercice \theenumi : Factorielle}
 \subsubsection{C types}
-\emph{Hint : vous pouvez trouver le }\verb=specifier= \emph{de chaque type ici \url{https://en.wikipedia.org/wiki/C_data_types}. Pratique pour les} \verb=printf=.
+\emph{Conseil : vous pouvez trouver le }\verb=specifier= \emph{de chaque type ici \url{https://en.wikipedia.org/wiki/C_data_types}. Pratique pour les} \verb=printf=.
 \setcounter{enumii}{1}
 \paragraph{\theenumii.} 
 Créer un programme C permettant d'afficher la factorielle des $n$ premiers entiers en utilisant le format \verb=int=. Utiliser si possible une fonction récursive. 
@@ -81,18 +102,18 @@ Observer le comportement aux alentours des entiers $[12, 14]$. \\
 Réécrire la fonction pour un \verb=long int=, un \verb=float=. Afficher ensuite les factorielles des 36 premiers entiers et concluez.
 \stepcounter{enumii}
 \paragraph{\theenumii.} 
-Recommencez avec un type double \verb=double=. Tester pour $n \in \left[ 170, 172 \right]$
+Recommencez avec un type \verb=double=. Tester pour $n \in \left[ 170, 172 \right]$
 
 \subsubsection{MPFR}
 \setcounter{enumii}{1}
 Nous allons observer le comportement du même procédé sur des variables \verb=MPFR=.
 \paragraph{\theenumii.} 
 Consulter la documentation pour vous familiariser avec l'initialisation des variables \verb=mpfr_t=. \\
-Trouver \href{http://www.mpfr.org/mpfr-current/mpfr.html#index-mpfr_005ffac_005fui}{une méthode} permettant de calculer la factorielle directement.
+Trouver \href{http://www.mpfr.org/mpfr-current/mpfr.html#index-mpfr_005ffac_005fui}{une méthode} de la bibliothèque MPFR permettant de calculer la factorielle directement.
 \stepcounter{enumii}
 \paragraph{\theenumii.} 
 Initialiser une variable \verb=mpfr_t= à l'aide de la méthode \href{http://www.mpfr.org/mpfr-current/mpfr.html#index-mpfr_005finit}{mpfr\_init}.\\
-Appeler la méthode de la factorielle sur cette variable (en utilisant comme mode d'arrondi \verb=MPFR_RNDN=. \\
+Appeler la méthode de la factorielle sur cette variable (en utilisant comme mode d'arrondi \verb=MPFR_RNDN=). \\
 Comparer les résultats obtenus avec ceux d'un \verb=double= pour $n \in \left[ 170, 172 \right]$.\\ \\
 Pour l'affichage, utiliser
 \begin{lstlisting}
@@ -104,49 +125,45 @@ mpfr_out_str(stdout, 10, 0, mpfr_val_to_print, MPFR_RNDN);
 Afficher les factorielles des 300 premiers entiers pour une mantisse de 200 bits.
 \stepcounter{enumii}
 \paragraph{\theenumii.} 
-Concluez sur la flexibilité du choix de la taille de la mantisse avec MPFR.
+Concluez sur la flexibilité de la taille de l'exposant avec MPFR.
 %\emph{On observera vite qu'il n'est pas possible de renvoyer un type mpfr\_t en retour d'une fonction}
 
-\newpage
 \stepcounter{enumi}
 \setcounter{enumii}{1}
 
 \subsection{Exercice \theenumi : Évaluation de polynome}
 \subsubsection{Méthode directe}
-Soit le polynome $p(x)$ de degré 15 défini par les coefficients suivants : \{ $ 1, -30, 420, -3640, 21840, -96096, $ \\ $ 320320, -823680, 1647360, -2562560, 3075072, -2795520, 1863680, -860160, 245760, -32768 $ \}, où 1 est le coefficient pour $x^{15}$, -30 le coefficient de $x^{14}$ etc. 
-\paragraph{\theenumii.} Créer un tableau correspondant à ce polynome.
+Soit le polynôme $p(x) = x^{15} - 30x^{14} + 420x^{13} - 3640x^{12} + 21840x^{11} -96096x^{10} + 320320x^{9} -823680x^{8}+ 1647360x^{7} -2562560x^{6}+ 3075072x^{5} -2795520x^{4}+ 1863680x^{3} -860160x^{2}+ 245760x -32768 $.
+\paragraph{\theenumii.} Créer un tableau correspondant à ce polynome à l'aide du code ci-dessous.
 \begin{lstlisting}
-	const double polynome[16] = { 1, -30, 420, -3640, 21840, 
-	-96096, 320320,	-823680, 1647360, -2562560, 3075072, -2795520, 
-	1863680, -860160, 245760, -32768 };
+	const double polynome[16] = { 1, -30, 420, -3640, 21840, -96096, 320320, -823680, 1647360, -2562560, 3075072, -2795520, 1863680, -860160, 245760, -32768 };
 \end{lstlisting}
 
 \stepcounter{enumii}
-\paragraph{\theenumii.} Créer une méthode permettant d'évaluer ce polynome directement, pour une valeur $x$. Utiliser \verb=mpfr_t= pour les calculs MPFR avec l'arrondi \verb=MPFR_RNDN=.
+\paragraph{\theenumii.} Créer une méthode permettant d'évaluer ce polynome directement, pour une valeur $x$ donnée. Utiliser \verb=mpfr_t= pour les calculs avec l'arrondi \verb=MPFR_RNDN=.
 
 \stepcounter{enumii}
 \paragraph{\theenumii.} Evaluez ainsi $p(x)$ pour $x \in \left[ 1.6,2.4 \right]$ avec un pas de $10^{-4}$. \\
-Afficher les résultats dans un fichier (première colonne, la valeur de x, seconde colonne, la valeur de son évaluation) ; idéalement avec une séparation par tabulation. Ploter ensuite le fichier pour observer le comportement de l'évaluation aux alentours de 2.
-\\ Les oscillations observées rendent difficile la détection de la racine de $p$ par une méthode comme celle de la dichotomie par exemple.\\
-\\Prospectez la valeur d'une des racines du polynôme.
-
+Afficher les résultats dans un fichier (première colonne : valeur de x, seconde colonne : valeur de son évaluation) ; idéalement avec une séparation par tabulation. Ploter ensuite le fichier pour observer le comportement de l'évaluation aux alentours de 2, avec Gnuplot\footnote{\url{http://gnuplot.sourceforge.net/}} par exemple.\\
+Les oscillations observées rendent difficile la détection de la racine de $p$ par une méthode comme celle de la dichotomie par exemple.\\
+\\A l'aide du graphique, prospectez la valeur d'une des racines du polynôme.
 
 \subsubsection{Méthode de Horner}
 \setcounter{enumii}{1}
-Horner propose un algorithme plus efficace pour évaluer un polynome, évitant de recalculer les puissances de x à chaque puissance.
-\\
+Horner propose un algorithme plus efficace pour évaluer un polynome, évitant de recalculer les puissances de $x$ successives.\\
 Le principe est de factoriser les $x$ un à un. \\
 Soit \[ P\left(X\right) = a_{n}X^{n}+...+a_{1}X +  a_{0} \in  \mathbb{R}\left[ X\right] \]
 La réduction de Horner donne
 \[a_{n}x^{n}+...+a_{1}x + a_{0} = ((...(a_{n}x+a_{n-1})x+a_{n-2})...)x+a_{0} \]
 \\ 
 L'algorithme d'évaluation devient alors :\\
-%\begin{lstlisting}
-	$y = a_{d}$\\
-	\textbf{pour} i=d-1 \textbf{to} 0\\
-	.\hspace{1cm} $y = x.y + a_{i}$
-%\end{lstlisting}
-\\
+\begin{algorithmic}
+ 	\State $y\gets a_{d}$
+ \For{$i\gets (d-1), 0$}
+ 		\State $y\gets x.y+a_{i}$
+ \EndFor
+\end{algorithmic}
+
 Soit en C :
 \begin{lstlisting}
 	void evaluatePolynomeHorner(mpfr_t acc, const double xDouble) {
@@ -167,23 +184,32 @@ Soit en C :
 }
 \end{lstlisting}
 
-\paragraph{\theenumii.} Implémenter l'algorithme de Horner pour l'évaluation d'un polynome. L'appliquer au même intervalle que précédemment. Observer la différence.
+\paragraph{\theenumii.} Implémenter l'algorithme de Horner pour l'évaluation du polynome. L'appliquer au même intervalle que précédemment. Observer la différence.
+\setcounter{enumii}{1}
+\subsubsection{Factorisation}
+En réalité, le polynome étudié peut-être factorisé en $(x-2)^{15}$.
+\paragraph{\theenumii.}Utiliser cette dernière formule pour calculer directement les évaluations sur le même intervalle que précédemment.
+\stepcounter{enumii}
+\paragraph{\theenumii.}Concluez sur l'efficacité des méthodes (et l'intérêt de trouver les racines lorsque possible) en terme de temps de calcul et d'exactitude.
 
-\subsubsection{Factorisation} 
-Le polynome peut-être factorisé en $(x-2)^{15}$.\\
-Utiliser cette dernière formule pour calculer directement les évaluations sur le même intervalle que précédemment.\\
-Concluez sur l'efficacité des méthodes (et l'intérêt de trouver les racines lorsque possible) en terme de temps de calcul.
-
+\setcounter{enumii}{1}
 \subsubsection{MPFR}
-Utiliser \verb=mpfr_init2= (au lieu de \verb=mpfr_init=) pour augmenter la précision jusqu'à 60 (au lieu de 53). \\
-Observer l'évolution des oscillations, même avec une méthode directe. \\
-Changer la précision à 8000. \\ Observer l'évolution sur le temps de calcul. Sur un procédé itératif, on aurait une déperdition conséquente en terme de temps de calcul... et de mémoire!
+\paragraph{\theenumii.}Utiliser \verb=mpfr_init2= (au lieu de \verb=mpfr_init=) pour augmenter la précision jusqu'à 60 (au lieu de 53).
+\stepcounter{enumii}
+\paragraph{\theenumii.}Observer l'évolution des oscillations, même avec une méthode directe. 
+\stepcounter{enumii}
+\paragraph{\theenumii.}Changer la précision à 8000. Observer l'évolution sur le temps de calcul. \\
+Sur un procédé itératif, on aurait une déperdition conséquente en terme de temps de calcul... et de mémoire!
 
 \stepcounter{enumi}
+\setcounter{enumii}{1}
 \subsection{Exercice \theenumi : Modes d'arrondi}
-Sommer les inverses des factorielles des $n$ premiers entiers à l'aide de l'algorithme trouvé ici : \url{http://www.mpfr.org/sample.html}. \\
-Regarder les différents modes d'arrondi proposés \url{http://www.mpfr.org/mpfr-current/mpfr.html#Rounding-Modes}.
-Changer le mode d'arrondi utilisé dans les calculs et observer l'impact sur les résultats. \\ 
+\paragraph{\theenumii.}En se basant sur l'algorithme trouvé ici : \url{http://www.mpfr.org/sample.html}, sommer les inverses des factorielles des $n$ premiers entiers à l'aide de MPFR.
+\vspace{0.5cm} 
+\stepcounter{enumii}
+\\MPFR gère les modes d'arrondis suivants : \url{http://www.mpfr.org/mpfr-current/mpfr.html#Rounding-Modes}.
+\vspace{-0.5cm} 
+\paragraph{\theenumii.}Changer le mode d'arrondi utilisé dans les calculs et observer l'impact sur les résultats. \\ 
 Cet ordonnancement était-il prévisible?
 
 \end{document}
