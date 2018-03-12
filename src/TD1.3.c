@@ -10,7 +10,7 @@
 
 /*
  * Use `-lmpfr -lgmp` in the compilation
- * gcc src/TD1.1.c -o TD1.1 -lmpfr -lgmp
+ * gcc src/TD1.3.c -o TD1.3 -lmpfr -lgmp
  */
 
 #include <stdio.h>
@@ -106,12 +106,60 @@ int exercise3(void) {
 	return EXIT_SUCCESS;
 }
 
+int exercise4(void) {
+	const long int size = 5000;
+
+	printf("\nBefore init\n");
+
+	mpfr_t (**tab)[size][size];
+	tab = malloc(sizeof(mpfr_t*[size][size]));
+	*tab = malloc(sizeof(mpfr_t[size][size]));
+
+	// for information, a matrix of double can easily handle this process
+	// until 50000 rows and columns (if you have enough RAM).
+//	double (**tabD)[size][size];
+//	tabD = malloc(sizeof(double*[size][size]));
+//	*tabD = malloc(sizeof(double[size][size]));
+
+	printf("After init\n");
+
+	for (long int i = 0; i < size; ++i) {
+		for (long int j = 0; j < size; ++j) {
+//			(**tabD)[i][j] = i*j;
+
+			mpfr_init2((**tab)[i][j], 20000);
+			mpfr_set_si((**tab)[i][j], i * j, MPFR_RNDU);
+		}
+	}
+
+	printf("After set\n");
+	//	getchar();
+
+	for (long int i = 0; i < size; ++i) {
+		for (long int j = 0; j < size; ++j) {
+			mpfr_clear((**tab)[i][j]);
+		}
+	}
+
+	free(*tab);
+	free(tab);
+//	free(*tabD);
+//	free(tabD);
+
+	printf("\nAfter clear\n");
+
+	return EXIT_SUCCESS;
+}
+
 int main(void) {
 	int out = EXIT_FAILURE;
 
 	// ex 3
 	printf("\nExercise 3:\n");
 	out += exercise3();
+
+	// ex 4?
+//	exercise4();
 
 	return out;
 }
