@@ -21,7 +21,7 @@
 #define DEGRE 15
 
 // 53 is double. > 58 start to converge
-#define PRECISION 57
+#define PRECISION 53
 
 /**
  * Declaring the polynome as an array, the first value being the coefficient with the higher degree
