@@ -50,3 +50,10 @@ modules.order
 Module.symvers
 Mkfile.old
 dkms.conf
+*.cproject
+*.project
+.settings/*
+TD1/.settings/language.settings.xml
+TD1/.settings/org.eclipse.cdt.codan.core.prefs
+TD2/.settings/language.settings.xml
+TD2/.settings/org.eclipse.cdt.codan.core.prefs
