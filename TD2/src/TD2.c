@@ -10,7 +10,7 @@
 
 /*
  * Use `-lmpfr -lgmp` in the compilation
- * gcc src/TD2.c src/utils.h src/utils.c src/inputOutput.h src/inputOutput.c -o TD2.out -lmpfr -lgmp
+ * gcc src/TD2.c src/utils.h src/utils.c src/inputOutput.h src/inputOutput.c src/summations.c src/summations.h -o TD2.out -lmpfr -lgmp
  */
 
 #include <stdio.h>
