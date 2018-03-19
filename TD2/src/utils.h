@@ -23,4 +23,6 @@ char** str_split(char* a_str, const char a_delim);
 
 void cfree(void * ptr);
 
+void testMPFR(void);
+
 #endif // UTILS_H

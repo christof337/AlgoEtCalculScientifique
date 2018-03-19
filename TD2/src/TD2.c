@@ -2,9 +2,9 @@
  ============================================================================
  Name        : TD2.c
  Author      : Christophe Pont
- Version     : 1.1
+ Version     : 1.2
  Copyright   : MIT License
- Description : TD2
+ Description : TD2 : accuracy and sums
  ============================================================================
  */
 
@@ -20,16 +20,7 @@
 #include "inputOutput.h"
 
 #define PRECISION 53
-
-/**
- * Get to know if MPFR is properly installed.
- */
-void testMPFR(void) {
-	// if this lines compile and prints well, then MPFR is properly installed ; plus you get to know which version you are using.
-	printf("\nMPFR library: %-12s\nMPFR header:  %s (based on %d.%d.%d)\n",
-			mpfr_get_version(), MPFR_VERSION_STRING, MPFR_VERSION_MAJOR,
-			MPFR_VERSION_MINOR, MPFR_VERSION_PATCHLEVEL);
-}
+#define PRECISION_LARGE 200
 
 const int NB_OGC = 11;
 const int NB_JDD_PER_OGC = 4;
@@ -62,18 +53,49 @@ int main(void) {
 	printf("\nProgram start\n");
 	mpfr_t (*arrayFloats)[NB_OGC][NB_JDD_PER_OGC][EXPECTED_FLOATS_PER_FILE];
 	mpfr_t (*arrayCond)[NB_OGC][NB_JDD_PER_OGC];
+	mpfr_t (*arraySum)[NB_OGC][NB_JDD_PER_OGC];
+	mpfr_t cond;
+	mpfr_init2(cond, PRECISION);
 
 	three_dimensions_array_init(NB_OGC, NB_JDD_PER_OGC,
 			EXPECTED_FLOATS_PER_FILE, &arrayFloats, PRECISION);
 	matrix_init(NB_OGC, NB_JDD_PER_OGC, &arrayCond, PRECISION);
+	matrix_init(NB_OGC, NB_JDD_PER_OGC, &arraySum, PRECISION);
 
 	// begin
 	getArraysFromDataFiles(NB_OGC, NB_JDD_PER_OGC, EXPECTED_FLOATS_PER_FILE,
 			*arrayFloats, *arrayCond);
 
+	for (int indOG = 0; indOG < NB_OGC; ++indOG) {
+		for (int j = 0; j < NB_JDD_PER_OGC; ++j) {
+			// the value of the magnitude is in valOrdreGrandeur (3,6...)
+			int valOrdreGrandeur = ordreGrandeurCondLogArray[indOG];
+			// indFile is the id of the file
+			int indFile = indOG * NB_JDD_PER_OGC + (j + 1);
+			// the content of the current file is in `array`, with EXPECTED_FLOATS_PER_FILE floats in it
+			mpfr_t * array = (*arrayFloats)[indOG][j];
+			mpfr_set(cond, (*arrayCond)[indOG][j], MPFR_RNDN);
+
+			mpfr_t sum;
+			mpfr_init2(sum, PRECISION_LARGE);
+			mpfr_set_str(sum, "0", 10, MPFR_RNDN);
+			for (int i = 0; i < EXPECTED_FLOATS_PER_FILE; ++i) {
+				mpfr_add(sum, sum, array[i], MPFR_RNDN);
+			}
+
+			printf("\nThe file %s ", buildFileName(valOrdreGrandeur, indFile));
+			printf("contains %d values in `array` ", EXPECTED_FLOATS_PER_FILE);
+			mpfr_printf(", the conditionning is %Re", cond);
+			mpfr_printf("and the sum might be %Re", sum);
+
+			mpfr_clear(sum);
+		}
+	}
+
 	// end
 	free3DArray(NB_OGC, NB_JDD_PER_OGC, EXPECTED_FLOATS_PER_FILE, arrayFloats);
 	freeMatrix(NB_OGC, NB_JDD_PER_OGC, arrayCond);
+	mpfr_clear(cond);
 
 	printf("\nExiting\n");
 

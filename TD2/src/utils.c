@@ -166,3 +166,13 @@ void cfree(void * ptr) {
 		free(ptr);
 	}
 }
+
+/**
+ * Get to know if MPFR is properly installed.
+ */
+void testMPFR(void) {
+	// if this lines compile and prints well, then MPFR is properly installed ; plus you get to know which version you are using.
+	printf("\nMPFR library: %-12s\nMPFR header:  %s (based on %d.%d.%d)\n",
+			mpfr_get_version(), MPFR_VERSION_STRING, MPFR_VERSION_MAJOR,
+			MPFR_VERSION_MINOR, MPFR_VERSION_PATCHLEVEL);
+}

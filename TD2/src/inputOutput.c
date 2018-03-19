@@ -92,3 +92,47 @@ int readFromFile(const char* fileName, mpfr_t arrayToFill[], mpfr_t cond) {
 	return nbFloats;
 }
 
+/**
+ * @brief      écrit la matrice `matrix` dans un fichier.
+ * @pre        `matrix` doit être de dimension (n,m)
+ *
+ * @param      matrix    The matrix to write
+ * @param[in]  n         Number of columns
+ * @param[in]  m         Number of rows
+ * @param[in]  fileName  The file name
+ *
+ * @return     0 en cas de succès, la valeur de l'erreur sinon
+ */
+int writeMatrix(const size_t n, const size_t m, mpfr_t matrix[m][n],
+		const char * fileName) {
+	FILE * pf;
+	int errnum;
+	pf = fopen(fileName, "w+");
+
+	if (pf == NULL) {
+		// fail to open file
+		errnum = errno;
+		perror("Error while opening the file");
+		assert(0 /* Failed to open the file */);
+		return errnum;
+	} else {
+//		fprintf(pf, "\t");
+//		for (int j = 0 ; j < n ; ++j) {
+//			fprintf(pf, "%8s[%d]\t", "", j + 1);
+//		}
+//		fprintf(pf, "\n");
+		for (int i = 0; i < m; ++i) {
+//			fprintf(pf, "[%d]\t", i + 1);
+			for (int j = 0; j < n; ++j) {
+				//fprintf(pf,"%12G\t",matrix[i][j]);
+				mpfr_out_str(pf, 10, 12, matrix[i][j], MPFR_RNDN);
+				fprintf(pf, "\t");
+			}
+			fprintf(pf, "\n");
+		}
+
+		fclose(pf);
+	}
+
+	return 0;
+}
