@@ -51,21 +51,27 @@ void getArraysFromDataFiles(const size_t l, const size_t m, const size_t n,
 int main(void) {
 	int out = EXIT_SUCCESS;
 	printf("\nProgram start\n");
+	// INITIALIZATIONS
+	// on utilise des pointeurs sur tableaux, pensez à mettre `(*<array)` lors de l'accès
 	mpfr_t (*arrayFloats)[NB_OGC][NB_JDD_PER_OGC][EXPECTED_FLOATS_PER_FILE];
 	mpfr_t (*arrayCond)[NB_OGC][NB_JDD_PER_OGC];
 	mpfr_t (*arraySum)[NB_OGC][NB_JDD_PER_OGC];
 	mpfr_t cond;
 	mpfr_init2(cond, PRECISION);
+	mpfr_t sum;
+	mpfr_init2(sum, PRECISION_LARGE);
 
+	// ALLOCATIONS + MPFR_INIT
 	three_dimensions_array_init(NB_OGC, NB_JDD_PER_OGC,
 			EXPECTED_FLOATS_PER_FILE, &arrayFloats, PRECISION);
 	matrix_init(NB_OGC, NB_JDD_PER_OGC, &arrayCond, PRECISION);
 	matrix_init(NB_OGC, NB_JDD_PER_OGC, &arraySum, PRECISION);
 
-	// begin
+	// getting the arrays from the files
 	getArraysFromDataFiles(NB_OGC, NB_JDD_PER_OGC, EXPECTED_FLOATS_PER_FILE,
 			*arrayFloats, *arrayCond);
 
+	// MAIN LOOP
 	for (int indOG = 0; indOG < NB_OGC; ++indOG) {
 		for (int j = 0; j < NB_JDD_PER_OGC; ++j) {
 			// the value of the magnitude is in valOrdreGrandeur (3,6...)
@@ -74,28 +80,30 @@ int main(void) {
 			int indFile = indOG * NB_JDD_PER_OGC + (j + 1);
 			// the content of the current file is in `array`, with EXPECTED_FLOATS_PER_FILE floats in it
 			mpfr_t * array = (*arrayFloats)[indOG][j];
-			mpfr_set(cond, (*arrayCond)[indOG][j], MPFR_RNDN);
+			// the first value of `array` is `array[0]` (and not `(*array)[0]`)
 
-			mpfr_t sum;
-			mpfr_init2(sum, PRECISION_LARGE);
-			mpfr_set_str(sum, "0", 10, MPFR_RNDN);
-			for (int i = 0; i < EXPECTED_FLOATS_PER_FILE; ++i) {
-				mpfr_add(sum, sum, array[i], MPFR_RNDN);
-			}
+			mpfr_set(cond, (*arrayCond)[indOG][j], MPFR_RNDN);
+			// computing the sum here
+			// uncomment next line when the sum is computed
+//			mpfr_set((*arraySum)[indOG][j], sum, MPFR_RNDN);
 
 			printf("\nThe file %s ", buildFileName(valOrdreGrandeur, indFile));
-			printf("contains %d values in `array` ", EXPECTED_FLOATS_PER_FILE);
-			mpfr_printf(", the conditionning is %Re", cond);
-			mpfr_printf("and the sum might be %Re", sum);
-
-			mpfr_clear(sum);
+			printf("contains %d values in `array`, ", EXPECTED_FLOATS_PER_FILE);
+			mpfr_printf("its conditionning is %Re ", cond);
+			// uncomment next line when the sum is computed
+//			mpfr_printf("and the sum is %Re", (*arraySum)[indOG][j]);
+			// or
+//			mpfr_out_str(stdout,10,0,(*arraySum)[indOG][j],MPFR_RNDN);
 		}
 	}
 
 	// end
+	// free arrays
 	free3DArray(NB_OGC, NB_JDD_PER_OGC, EXPECTED_FLOATS_PER_FILE, arrayFloats);
 	freeMatrix(NB_OGC, NB_JDD_PER_OGC, arrayCond);
+	freeMatrix(NB_OGC, NB_JDD_PER_OGC, arraySum);
 	mpfr_clear(cond);
+	mpfr_clear(sum);
 
 	printf("\nExiting\n");
 
