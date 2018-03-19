@@ -1,0 +1,142 @@
+\documentclass{exam}
+
+% set font encoding for PDFLaTeX or XeLaTeX
+\usepackage{ifxetex}
+\ifxetex
+  \usepackage{fontspec}
+\else
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+  \usepackage{lmodern}
+\fi
+
+\usepackage{enumitem}
+\usepackage{hyperref}
+\usepackage{ragged2e}
+\usepackage{listings}
+
+% used in maketitle
+\title{TD2 : Analyse d'erreur et qualité numérique}
+%\author{Name of Author}
+
+% Enable SageTeX to run SageMath code right inside this LaTeX file.
+% documentation: http://mirrors.ctan.org/macros/latex/contrib/sagetex/sagetexpackage.pdf
+% \usepackage{sagetex}
+
+\begin{document}
+    \hspace{-0.7cm}
+    \hrulefill
+    \begin{flushleft}
+        {Licence de Sciences et Technologies\hfill Université de Perpignan Via Domitia\\
+        S6 - mention Informatique}
+        %Christophe Pont, LAMPS \hfill \emph{Licence 3}\\
+        %christophe.pont@univ-perp.fr \hfill \emph{Algo et Calcul scientifique} \\
+        %https://github.com/christof337/AlgoEtCalculScientifique \hfill \today} \\
+        %Université de Perpignan Via Domitia
+    \end{flushleft}
+    \begin{center}
+        {\Large\bfseries TD2 : Analyse d'erreur et qualité numérique\par}
+        \vspace{0.5cm}
+        {\large Travaux dirigés notés}\\
+        \vspace{0.1cm}
+        \textit{Les modalités de rendu se trouvent en dernière page.}\\
+        \vspace{0.2cm}
+        \footnotesize Ce TD s'inspire d'un sujet de 2014.
+    \end{center}
+    \hrulefill
+
+    \setcounter{enumi}{1}
+    \section{Sommer $n$ flottants}
+    \paragraph{}Cet exercice permet la mise en pratique de l'illustration des différents points vus en cours concernant l'arithmétique élémentaire de la norme IEEE-754\footnote{Zuras, Dan, et al. "IEEE standard for floating-point arithmetic." IEEE Std 754-2008 (2008): 1-70.}, la perte de précision lors d'un enchaînement de calculs, la perte de propriétés arithmétiques sur la précision de la solution calculée avec un algorithme inverse stable. On utilisera MPFR pour plus de flexibilité dans la manipulation des formats et des calculs.
+    \paragraph{}On s'intéresse au calcul de la somme $s_{n}$ de $n$ nombres flottants $x_{i} : s_{n} = \sum\limits_{i=1}^{n}x_{i}$. Il s'agit d'observer la qualité numérique de différents algorithmes qui calculent cette somme pour des jeux de données $(x_{i})_{i}$ de conditionnement variables. On choisit de fixer la longueur de la somme à une valeur arbitraire $n=100$ ; la somme $s_{100}$ sera notée plus simplement $s$.
+    \paragraph{\large Les données.}
+    \justifying
+    Dans l'archive fournie sur l'ENT, vous trouverez un répertoire \verb=data2018= qui contient des jeux de données pour des conditionnements d'ordre de grandeur $10^{c}$ avec ${c\in\left\lbrace 3,6,9,12,15,16,18,20,24,28,32\right\rbrace}$.
+    Quatre jeux de données sont disponibles pour chaque ordre de grandeur des conditionnements. Au total, on dispose donc de 44 jeux d'opérandes, chacun dans un fichier.
+   % \end{flushleft}
+   \\
+    Chaque fichier comporte 101 lignes et stocke le jeu de données comme suit :
+    \begin{itemize}
+        \item ligne 1 : $n$,\verb=cond= : le nombre d'opérandes à sommer (ici $n=100$) et le conditionnement de leur somme $s$ ;
+        \item ligne 2-101 : les opérandes $x_{i},i\in\left[1,n\right]$ en \verb=binary64= ;
+        %%- n’utilisait pas MPFR (on avait moins d’heures) ; il faudrait étendre l’analyse de référence avec du MPFR et donc enlever la valeur de la ligne 102 (S l’arrondi en binary64 de s = ni=1 xi, que l’on conside ́rera comme valeur de re ́fe ́rence),
+        %\item ligne 102 : $S$ l'arrondi en \verb=binary64= de $s=\sum_{i=1}^{n}x_{i}$, que l'on considérera comme valeur de référence.
+    \end{itemize}
+    \paragraph{\large Les algorithmes.} On considère les 9 algorithmes de sommation suivants ( + 2 facultatifs).
+    \setcounter{enumii}{1}
+    \begin{enumerate}[label=A\arabic*.]
+        \item dans l'ordre croissant des indices : $((x_{0}+x_{1})+x_{2})...$,
+        \item dans l'ordre décroissant des indices,
+        \item opérandes positifs puis négatifs dans l'ordre croissant des indices,
+        \item opérandes négatifs puis positifs dans l'ordre croissant des indices,
+        \item somme partielle $S_{+}$ des opérandes positifs, puis somme partielle $S_{-}$ des opérandes
+négatifs chacune dans l’ordre croissant des indices, puis somme de $S_{+}$ et $S_{-}$ ,
+        %%- comporte aussi trop de variantes d’algorithmes d’accumulation  (en supprimer certains)
+        %\item ordre croissant des valeurs des opérandes,
+        %\item ordre décroissant des valeurs des opérandes,
+        \item Ordre croissant des valeurs absolues des opérandes
+        \item Ordre décroissant des valeurs absolues des opérandes
+        \item addition récursive par paire (\textit{pairwise}) : \\${\left((x_{0} + x_{1} ) + (x_{2} + x_{3} )) + ((x_{4} + x_{5} ) + (x_{6} + x_{7} )\right)}$ pour $n = 8$ par exemple.
+        %- et ne comporte pas par exemple de sommation compensée et k-fois compensée, qu’il faudrait ajouter pour voir l’effet d’amélioration de la précision à conditionnement fixé.
+        \item Sommation compensée
+        \item {[Facultatif : Sommation k-fois compensée]}
+        \item {[Bonus : supprimer les deux opérandes de plus plus petite valeur absolue, les additionner, ajouter cette somme comme un nouvel opérande et recommencer (addition des deux plus petites valeurs absolues, ...) jusqu’à ce qu’il n’y ait plus d’opérande à additionner.]}
+    \end{enumerate}
+
+    \paragraph{\large Les mesures.}
+    L'erreur relative entre une somme calculée $\hat{s}$ et la somme exacte $s$ mesure la précision de $\hat{s}$. La somme exacte $s$ est en général inconnue en pratique. Ici, nous nous proposons d'en obtenir une approximation fiable en sommant avec une précision suffisante (\verb=200= bits) à l'aide de MPFR. En arrondissant correctement cette somme en \verb=b64=, nous obtenons ainsi la somme exacte $s$. On aura donc : \verb=ErrRel=$(s,\hat{s})=|s-\hat{s}|/|s|$.
+
+    \paragraph{\large L'étude.}
+    \begin{enumerate}
+        \item Les sources
+        \begin{enumerate}
+            \item Afin de gagner du temps sur le développement des fonctions basiques qui seront utilisées dans la suite du TP, vous trouverez sur GitHub les sources d'un programme "vide" lisant les flottants des fichiers de données (qu'il contient déjà)\footnote{Vous êtes libres de vous en servir ou non, mais étant donné le temps imparti il est recommandé de réutiliser les fonctions implémentées}.
+            \item Pour le télécharger
+            \begin{enumerate}
+                \item Si vous avez git, tapez simplement dans une console\\\verb=git clone https://github.com/christof337/AlgoEtCalculScientifique.git=
+                \item Sinon, vous pouvez télécharger le zip à cette adresse\\\url{https://github.com/christof337/AlgoEtCalculScientifique}, bouton (vert) "Clone or download", puis "Download zip".
+            \end{enumerate}
+            \item Afin de prendre en main le programme, placez vous dans la fonction \verb=main= du fichier \verb=TD2.c= et remplissez le tableau (déjà initialisé) \verb=arraySum= avec la valeur de la somme $s$ des éléments de chaque fichier. On rappelle que cette somme (simple) devra être calculée avec une précision de \verb=200= (\verb=PRECISION_LARGE=). Elle sera automatiquement arrondie à 53 bits lorsque copiée dans le tableau \verb=arraySum= (à l'aide de \verb=mpfr_set=). Elle servira de référence $s$ dans la suite du TD. \textbf{Le format flottant mpfr de précision 53 bits sera utilisé dans tous les calculs suivants.}
+            \begin{enumerate}
+                \item \footnotesize À titre indicatif et à des fins de correction, la valeur de la somme attendue pour le fichier\\\verb=TD2-File01-N100-C10e3.txt= est \verb=-9.2509937555610233e-01=
+            \end{enumerate}
+        \end{enumerate}
+        \item Les algorithmes
+        \begin{enumerate}
+            \item Comprendre que les 9 algorithmes de sommation considérés ne diffèrent entre eux que par l'ordre des sommations partielles, c'est-à-dire par les parenthésages de l'évaluation de $\hat{s}$ de $s$. Imaginer une proposition de vérification expérimentale de cette propriété (code ou pseudo-code).
+            \item Justifier que ces algorithmes sont inverse-stables.
+        \end{enumerate}
+        \item Mesure de la perte de précision d'une somme calculée.
+        \begin{enumerate}
+            \item Expliciter et coder \verb=ErrRelBits=, l'erreur relative dans la somme calculée $\hat{s}$ mesurée comme le nombre de bits significatifs de $\hat{s}$.
+            \item Proposer et coder une vérification expérimentale de cette mesure appliquée à l'erreur d'arrondi de la représentation de précision 53 bits de MPFR (mantisse aussi grande qu'en \verb=binary64=).
+            \item Expliciter et coder \verb=NbBitsPerdus=, le nombre de bits non significatifs dans $\hat{s}$. \textbf{Cette mesure sera utilisée dans toutes les questions suivantes.}
+        \end{enumerate}
+        \item Dans les questions suivantes, il s’agit de comparer la précision perdue par les différents algorithmes A1, A2, ..., et l’effet du conditionnement sur cette perte de précision. On procède en deux temps.
+        \begin{enumerate}
+            \item À l’aide des différents jeux de données fournis, comparer pour chaque algorithme l’évolution de la perte de précision, en nombre de bits significatifs perdus, à son nombre de conditionnement fixé. Qu’en conclure?
+            \item Générer deux fichiers \verb=moy.data= et \verb=max.data= qui contiennent respectivement la moyenne et le maximum de cette perte de précision pour \textit{chaque} algorithme et \textit{chaque} ordre de grandeur du conditionnement. On pourra utiliser la méthode \verb=writeMatrix= de \verb=inputOutput=.
+            \item Écrire un fichier de commandes \verb=gnuplot=\footnote{\url{http://gnuplot.sourceforge.net/}} pour tracer les deux graphiques suivants à partir des fichiers \verb=moy.data= et \verb=max.data=.
+            \begin{enumerate}
+                \item Le nombre moyen de bits perdus (ordonnée) comme fonction du conditionnement (abscisse),
+                \item Le nombre maximum de bits perdus comme fonction du conditionnement.
+            \end{enumerate}
+            Le conditionnement sera exprimé sous la forme d’une puissance de 2. Une échelle logarithmique est adaptée à son affichage. Chaque graphique regroupera les résultats de l’ensemble des algorithmes.
+            \item Commenter les résultats ainsi obtenus.
+        \end{enumerate}
+        %%- comporte une dernière question (4) sur les majorations a priori non traité cette année.
+        %\item Rappeler la majoration \textit{a priori} de l'erreur relative dans la somme calculée par un algorithme inverse stable. Compléter les tracés précédents avec l'affichage de cette borne. Commenter les résultats ainsi obtenus.
+    \end{enumerate}
+
+    \paragraph{Le rendu}
+    On rappelle que \textbf{2} séances de TP seront accordées à ce travail.
+    Le rendu se fera soit par mail à \href{mailto:christophe.pont@univ-perp.fr}{christophe.pont@univ-perp.fr}, soit via l'ENT avant le \textbf{lundi 26/03 à 23h}.
+    L'attendu est :
+    \begin{enumerate}
+        \item Un fichier de réponses aux questions en pdf\footnote{Éventuellement au format papier, auquel cas le rendu se fera le lundi 26 à 17h à la fin de la séance au plus tard.}. Il devra contenir les graphiques demandées à la question 4.(c).
+        \item Votre code source zippé, avec, lorsque c'est possible, les numéros de questions en en-tête de méthodes. Vous ne serez pas noté sur la qualité du code, simplement sur la précision à laquelle il répond à la problématique.
+    \end{enumerate}
+    Si une question vous pose problème et que vous n'êtes pas parvenu à obtenir de l'aide à son sujet, expliquez quel a été votre raisonnement et les pistes explorées (par exemple, un algorithme en pseudo-code répondant au problème peut être accepté).
+
+
+\end{document}
