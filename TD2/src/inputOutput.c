@@ -6,6 +6,7 @@
 #include <string.h>
 #include <assert.h>
 #include <mpfr.h>
+#include <unistd.h>
 
 #include "utils.h"
 
