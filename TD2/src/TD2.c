@@ -2,7 +2,7 @@
  ============================================================================
  Name        : TD2.c
  Author      : Christophe Pont
- Version     : 1.2
+ Version     : 1.3
  Copyright   : MIT License
  Description : TD2 : accuracy and sums
  ============================================================================
@@ -22,12 +22,18 @@
 #define PRECISION 53
 #define PRECISION_LARGE 200
 
+// number of magnitude treated
 const int NB_OGC = 11;
+// number of file per magnitude
 const int NB_JDD_PER_OGC = 4;
 const int ordreGrandeurCondLogArray[] = { 3, 6, 9, 12, 15, 16, 18, 20, 24, 28,
 		32 };
+// number of lines in files
 const int EXPECTED_FLOATS_PER_FILE = 100;
 
+/**
+ * Put in arrayFloats and arrayCond all the lines (resp condition number) of the
+ */
 void getArraysFromDataFiles(const size_t l, const size_t m, const size_t n,
 		mpfr_t arrayFloats[l][m][n], mpfr_t arrayCond[l][m]) {
 	char * currentFileName;
@@ -89,7 +95,7 @@ int main(void) {
 
 			printf("\nThe file %s ", buildFileName(valOrdreGrandeur, indFile));
 			printf("contains %d values in `array`, ", EXPECTED_FLOATS_PER_FILE);
-			mpfr_printf("its conditionning is %Re ", cond);
+			mpfr_printf("its condition number is %Re ", cond);
 			// uncomment next line when the sum is computed
 //			mpfr_printf("and the sum is %Re", (*arraySum)[indOG][j]);
 			// or

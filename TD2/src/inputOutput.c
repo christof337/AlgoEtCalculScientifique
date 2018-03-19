@@ -10,11 +10,11 @@
 #include "utils.h"
 
 /**
- * Read from a given file and put the read lines in arrayToFill and the conditionning in "cond".
+ * Read from a given file and put the read lines in arrayToFill and the condition number in "cond".
  * arrayToFill and cond must be initialized with the desired precision.
  * @param fileName The name of the file to be read
  * @param arrayToFill an array already initialized
- * @param cond the conditionning, initialized to
+ * @param cond the condition number, initialized to
  * @return the number of lines read ; 0 if none
  */
 int readFromFile(const char* fileName, mpfr_t arrayToFill[], mpfr_t cond) {
@@ -55,14 +55,14 @@ int readFromFile(const char* fileName, mpfr_t arrayToFill[], mpfr_t cond) {
 			if (splittedLine == NULL) {
 				// impossible to split : error?
 				fprintf(stderr,
-						"\nWrong format for the first line %s of %s. Expected : number of floating point numbers in file then conditionning.\n",
+						"\nWrong format for the first line %s of %s. Expected : number of floating point numbers in file then condition number.\n",
 						line, fileName);
 				assert(0 /* Split fail */);
 			} else {
 				sscanf(splittedLine[0], "%d", &nbFloats);
 
 				assert(splittedLine[1]!=NULL /* Wrong file format */);
-				// reading the conditionning
+				// reading the condition number
 				int tmp = mpfr_set_str(cond, splittedLine[1], 10 /* base 10 */,
 						MPFR_RNDN);
 				assert(tmp == 0 /* mpfr_set_str fail*/);
