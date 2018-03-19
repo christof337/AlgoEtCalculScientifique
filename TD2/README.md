@@ -2,5 +2,5 @@
 Compilation command line.
 
 ```
-gcc src/TD1.2.c -o TD1.2 -lmpfr -lgmp -lm
+gcc src/TD2.c src/utils.h src/utils.c src/inputOutput.h src/inputOutput.c -o TD2.out -lmpfr -lgmp
 ```
