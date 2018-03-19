@@ -90,6 +90,9 @@ int main(void) {
 
 			mpfr_set(cond, (*arrayCond)[indOG][j], MPFR_RNDN);
 			// computing the sum here
+
+			// ...
+
 			// uncomment next line when the sum is computed
 //			mpfr_set((*arraySum)[indOG][j], sum, MPFR_RNDN);
 
