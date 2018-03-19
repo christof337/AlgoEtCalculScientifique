@@ -58,7 +58,7 @@ int main(void) {
 	int out = EXIT_SUCCESS;
 	printf("\nProgram start\n");
 	// INITIALIZATIONS
-	// on utilise des pointeurs sur tableaux, pensez à mettre `(*<array)` lors de l'accès
+	// on utilise des pointeurs sur tableaux, pensez à mettre `(*<arrayEnQuestion>)` lors de l'accès
 	mpfr_t (*arrayFloats)[NB_OGC][NB_JDD_PER_OGC][EXPECTED_FLOATS_PER_FILE];
 	mpfr_t (*arrayCond)[NB_OGC][NB_JDD_PER_OGC];
 	mpfr_t (*arraySum)[NB_OGC][NB_JDD_PER_OGC];
