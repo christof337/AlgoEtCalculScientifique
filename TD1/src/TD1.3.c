@@ -1,16 +1,16 @@
 /*
  ============================================================================
- Name        : TD1.2.c
+ Name        : TD1.3.c
  Author      : Christophe Pont
- Version     : 1.3
+ Version     : 1.4
  Copyright   : MIT License
- Description : Exercise 2 of TD1 : Polynomial evaluation
+ Description : Exercise 3 of TD1 : Polynomial evaluation
  ============================================================================
  */
 
 /*
  * Use `-lmpfr -lgmp -lm` in the compilation command line
- * `gcc src/TD1.2.c -o TD1.2 -lmpfr -lgmp -lm`
+ * `gcc src/TD1.3.c -o TD1.3 -lmpfr -lgmp -lm`
  */
 
 #include <stdio.h>
@@ -189,7 +189,7 @@ int exercise4(const double lowerBound, const double upperBound,
 
 /**
  * command line :
- * `echo "m" | ./TD1.2 1> mpfr_XXX.dat`
+ * `echo "m" | ./TD1.3 1> mpfr_XXX.dat`
  * m being 1, 2, 3 (or 4) for each evaluation method.
  * XXX being the filename you want for that evaluation method.
  * then simply

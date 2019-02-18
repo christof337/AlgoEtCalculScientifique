@@ -1,10 +1,10 @@
 /*
  ============================================================================
- Name        : TD1.2.c
+ Name        : TD1.3.c
  Author      : Christophe Pont
  Version     : 1.0
  Copyright   : MIT License
- Description : Exercise 2 of TD1 : Polynomial evaluation
+ Description : Exercise 3 of TD1 : Polynomial evaluation
  ============================================================================
  */
 

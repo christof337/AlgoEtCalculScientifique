@@ -1,16 +1,16 @@
 /*
  ============================================================================
- Name        : TD1.3.c
+ Name        : TD1.2.c
  Author      : Christophe Pont
  Version     : 1.0
  Copyright   : MIT License
- Description : Exercise 3 of TD1 : Getting a grip on rounding modes with inverse factorial summations
+ Description : Exercise 2 of TD1 : Getting a grip on rounding modes with inverse factorial summations
  ============================================================================
  */
 
 /*
  * Use `-lmpfr -lgmp` in the compilation
- * gcc src/TD1.3.c -o TD1.3 -lmpfr -lgmp
+ * gcc src/TD1.2.c -o TD1.2 -lmpfr -lgmp
  */
 
 #include <stdio.h>
@@ -84,7 +84,7 @@ int computeSumInverseFactDouble(void) {
 /**
  * Computes the SumInverseFact for each rounding mode given by MPFR.
  */
-int exercise3(void) {
+int exercise2(void) {
 	//	MPFR_RNDN=0,  /* round to nearest, with ties to even */
 	//  MPFR_RNDZ,    /* round toward zero */
 	//  MPFR_RNDU,    /* round toward +Inf */
@@ -154,9 +154,9 @@ int exercise4(void) {
 int main(void) {
 	int out = EXIT_FAILURE;
 
-	// ex 3
-	printf("\nExercise 3:\n");
-	out += exercise3();
+	// ex 2
+	printf("\nExercise 2:\n");
+	out += exercise2();
 
 	// ex 4?
 //	exercise4();
