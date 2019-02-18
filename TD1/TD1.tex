@@ -51,7 +51,8 @@ Bien que la bibliothèque ait été initialement développée en C, des interfac
 		\item \href{http://search.cpan.org/~sisyphus/Math-MPFR/}{Perl}
 		\item \href{https://pypi.python.org/pypi/gmpy2}{Python}
 		\item \href{http://rubygems.org/gems/gmp}{Ruby}
-		\item and even \href{https://cran.r-project.org/web/packages/Rmpfr/index.html}{R}
+		\item \href{https://cran.r-project.org/web/packages/Rmpfr/index.html}{R}
+		\item ...
 	\end{itemize}
 \paragraph{Objectif} L'intérêt ici est de se familiariser avec cette bibliothèque, et l'utiliser afin de manipuler facilement la précision et les modes d'arrondis permis, en langage C.  
 \paragraph{Documentation} Une documentation de l'interface est disponible en ligne (\url{http://www.mpfr.org/mpfr-current/mpfr.html}). \textbf{Elle servira de référence tout au long de ce TP}.
@@ -64,7 +65,7 @@ Bien que certaines distributions GNU/Linux l'intègrent nativement, les headers 
 Se référer à \url{http://www.mpfr.org/mpfr-current/mpfr.html\#Installing-MPFR} pour les instructions d'installation détaillées, et pour tester si l'installation fonctionne.
 
 \paragraph{Sous Windows}
-Vous trouverez tout le nécessaire pour \emph{build} les \emph{packages} (ou en télécharger des \emph{prebuilt}) \href{https://github.com/emphasis87/libmpfr-msys2-mingw64}{ici} \url{https://github.com/emphasis87/libmpfr-msys2-mingw64}.
+Vous trouverez tout le nécessaire pour build les packages (ou en télécharger des \emph{prebuilt}) \href{https://github.com/emphasis87/libmpfr-msys2-mingw64}{ici} \url{https://github.com/emphasis87/libmpfr-msys2-mingw64}.
 
 \paragraph{Sous OSX} 
 Voir \href{https://github.com/macports/macports-ports}{macports} et récupérer le \emph{Portfile} de MPFR afin de procéder à l'installation (\url{https://github.com/macports/macports-ports/blob/master/devel/mpfr/Portfile}).
@@ -128,6 +129,16 @@ Afficher les factorielles des 300 premiers entiers pour une mantisse de 200 bits
 Concluez sur la flexibilité de la taille de l'exposant avec MPFR.
 %\emph{On observera vite qu'il n'est pas possible de renvoyer un type mpfr\_t en retour d'une fonction}
 
+
+\stepcounter{enumi}
+\setcounter{enumii}{1}
+\subsection{Exercice \theenumi : Modes d'arrondi}
+Vous trouverez ici : \url{http://www.mpfr.org/sample.html} un exemple pratique d'utilisation de mpfr.
+\paragraph{\theenumii.}En utilisant cet algorithme, sommer les inverses des factorielles des $n$ premiers entiers à l'aide de MPFR.
+\stepcounter{enumii} 
+\paragraph{\theenumii.}(Facultatif : MPFR gère les modes d'arrondis suivants : \url{http://www.mpfr.org/mpfr-current/mpfr.html#Rounding-Modes}. Changer le mode d'arrondi utilisé dans les calculs et observer l'impact sur les résultats. \\ 
+Cet ordonnancement était-il prévisible?)
+
 \stepcounter{enumi}
 \setcounter{enumii}{1}
 
@@ -158,8 +169,8 @@ La réduction de Horner donne
 \\ 
 L'algorithme d'évaluation devient alors :\\
 \begin{algorithmic}
- 	\State $y\gets a_{d}$
- \For{$i\gets (d-1), 0$}
+ 	\State $y\gets a_{n}$
+ \For{$i\gets (n-1), 0$}
  		\State $y\gets x.y+a_{i}$
  \EndFor
 \end{algorithmic}
@@ -201,15 +212,5 @@ En réalité, le polynome étudié peut-être factorisé en $(x-2)^{15}$.
 \paragraph{\theenumii.}Changer la précision à 8000. Observer l'évolution sur le temps de calcul. \\
 Sur un procédé itératif, on aurait une déperdition conséquente en terme de temps de calcul... et de mémoire!
 
-\stepcounter{enumi}
-\setcounter{enumii}{1}
-\subsection{Exercice \theenumi : Modes d'arrondi}
-\paragraph{\theenumii.}En se basant sur l'algorithme trouvé ici : \url{http://www.mpfr.org/sample.html}, sommer les inverses des factorielles des $n$ premiers entiers à l'aide de MPFR.
-\vspace{0.5cm} 
-\stepcounter{enumii}
-\\MPFR gère les modes d'arrondis suivants : \url{http://www.mpfr.org/mpfr-current/mpfr.html#Rounding-Modes}.
-\vspace{-0.5cm} 
-\paragraph{\theenumii.}Changer le mode d'arrondi utilisé dans les calculs et observer l'impact sur les résultats. \\ 
-Cet ordonnancement était-il prévisible?
 
 \end{document}
