@@ -26,7 +26,7 @@ https://github.com/christof337/AlgoEtCalculScientifique}
 	breaklines=true, 
 	showspaces=false
 	showstringspaces=false,          % underline spaces within strings only
-  showtabs=false                  % show tabs within strings adding particular underscores
+  	showtabs=false                  % show tabs within strings adding particular underscores
 } 
 
 %\maketitle{} % Generates title
@@ -58,7 +58,7 @@ Bien que la bibliothèque ait été initialement développée en C, des interfac
 \paragraph{Documentation} Une documentation de l'interface est disponible en ligne (\url{http://www.mpfr.org/mpfr-current/mpfr.html}). \textbf{Elle servira de référence tout au long de ce TP}.
 
 \section{Installation}
-Si MPFR n'est pas présent sur votre système, vous pouvez le télécharger \href{http://www.mpfr.org/}{ici} ou \href{https://ftp.gnu.org/gnu/mpfr/}{là}.
+Si MPFR n'est pas présent sur votre système (voir \hyperref[testInstall]{Tester l'installation} ci-dessous), vous pouvez le télécharger \href{http://www.mpfr.org/}{ici} ou \href{https://ftp.gnu.org/gnu/mpfr/}{là}.
 L'OS recommandé pour l'utilisation de MPFR est bien évidemment GNU/Linux, de par la forte dépendance entre GMP et MPFR. Ceci étant, vous restez libres.
 \paragraph{Sous Linux}
 Bien que certaines distributions GNU/Linux l'intègrent nativement, les headers ne sont pas toujours disponibles aux emplacements adéquats au développement.\\
@@ -70,7 +70,28 @@ Vous trouverez tout le nécessaire pour build les packages (ou en télécharger 
 \paragraph{Sous OSX} 
 Voir \href{https://github.com/macports/macports-ports}{macports} et récupérer le \emph{Portfile} de MPFR afin de procéder à l'installation (\url{https://github.com/macports/macports-ports/blob/master/devel/mpfr/Portfile}).
 
+\paragraph{Note pour installation sur les postes de l'université (sans droits admin)}
+Lorsque vous installez mpfr (et éventuellement gmp) sans avoir les droits administrateurs, la commande habituelle \verb=make install= ne fonctionnera pas avec les paramètres par défaut. En effet, on essaie d'installer des librairies/headers dans /usr/lib et /usr/include, or ce sont des répertoires dont l'accès est limité aux superutilisateurs.
+\subparagraph{Pour contourner ce problème,} il faut spécifier un emplacement accessible en écriture pour votre utilisateur à l'appel du \verb=configure= (recommandation : \verb=$HOME\Apps\mpfr=, par exemple).
+Cela donnerait donc
+\begin{lstlisting}
+$: cd <repertoire de telechargement de la librairie>
+$: ./configure --prefix=$HOME\Apps\mpfr
+$: make
+$: make check
+$: make install
+\end{lstlisting}
+Dans ce cas, le make install n'a pas besoin d'être lancé en \verb=sudo= car le répertoire est accessible.
+\textbf{Attention cependant}, il faut bien penser à link au bon emplacement lors des compilations (le nouveau répertoire n'étant pas dans le path).
+Pour cela :
+\begin{itemize}
+	\item ajouter à la ligne de compilation : \\\verb=-I $HOME/Apps/mpfr/include -L $HOME/Apps/mpfr/lib=
+	\item à chaque ouverture de console, taper la commande :\\\verb!export LD_LIBRARY_PATH=$HOME/Apps/mpfr/lib!
+\end{itemize}
+Et voilà, mpfr est installé même sans avoir les droits d'admin.
+
 \paragraph{Tester l'installation}
+\label{testInstall}
 Si la compilation du simple programme C suivant
 \begin{lstlisting}
 	#include <stdio.h>
@@ -85,7 +106,8 @@ avec \verb=cc -o version version.c -lmpfr -lgmp= s'exécute correctement (et que
 
 \section{Exercices}
 Une lecture préliminaire pour comprendre la bibliothèque se trouve \href{http://www.mpfr.org/mpfr-current/mpfr.html#MPFR-Basics}{ici} \url{http://www.mpfr.org/mpfr-current/mpfr.html#MPFR-Basics}.\\
-L'interface de référence quant à elle est \href{http://www.mpfr.org/mpfr-current/mpfr.html#MPFR-Interface}{là} \url{http://www.mpfr.org/mpfr-current/mpfr.html#MPFR-Interface}, habituez-vous à y naviguer.
+L'interface de référence quant à elle est \href{http://www.mpfr.org/mpfr-current/mpfr.html#MPFR-Interface}{là} \url{http://www.mpfr.org/mpfr-current/mpfr.html#MPFR-Interface}, habituez-vous à y naviguer.\\
+Enfin, un \href{http://www.mpfr.org/sample.html}{programme d'exemple} vaut tous les discours ( \url{http://www.mpfr.org/sample.html}).
 
 \setcounter{enumi}{1}
 \subsection{Exercice \theenumi : Factorielle}
@@ -177,7 +199,7 @@ L'algorithme d'évaluation devient alors :\\
 
 Soit en C :
 \begin{lstlisting}
-	void evaluatePolynomeHorner(mpfr_t acc, const double xDouble) {
+void evaluatePolynomeHorner(mpfr_t acc, const double xDouble) {
 	mpfr_t x;
 
 	mpfr_init2(x, PRECISION);
@@ -186,7 +208,7 @@ Soit en C :
 	mpfr_set_d(acc, polynome[0], MPFR_RNDN);
 
 	for (size_t ind = 1; ind <= DEGRE; ++ind) {
-//		acc = x * acc + polynome[ind];
+		// acc = x * acc + polynome[ind];
 		mpfr_mul(acc, acc, x, MPFR_RNDN);
 		mpfr_add_d(acc, acc, polynome[ind], MPFR_RNDN);
 	}
